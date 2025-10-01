@@ -1,0 +1,1258 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wardrobe Manager</title>
+
+```
+<!-- PWA Meta Tags -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Wardrobe">
+<meta name="theme-color" content="#2c3e50">
+<link rel="apple-touch-icon" sizes="192x192" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'%3E%3Crect fill='%232c3e50' width='192' height='192'/%3E%3Ctext y='130' font-size='100' fill='white'%3E👔%3C/text%3E%3C/svg%3E">
+<link rel="manifest" href="/manifest.json">
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+    
+    body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        background: #f8f9fa;
+        color: #2c3e50;
+    }
+    
+    /* Navigation */
+    .nav-container {
+        background: #f8f9fa;
+        padding: 10px 20px;
+        border-bottom: 1px solid #e0e0e0;
+    }
+    
+    .nav-tabs {
+        display: flex;
+        gap: 10px;
+    }
+    
+    .nav-tab {
+        padding: 12px 24px;
+        background: transparent;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        color: #2c3e50;
+        transition: all 0.3s;
+    }
+    
+    .nav-tab:hover {
+        background: #ecf0f1;
+    }
+    
+    .nav-tab.active {
+        background: #2c3e50;
+        color: white;
+        font-weight: bold;
+    }
+    
+    /* Content Area */
+    .content {
+        padding: 20px;
+        min-height: calc(100vh - 70px);
+    }
+    
+    .tab-content {
+        display: none;
+    }
+    
+    .tab-content.active {
+        display: block;
+    }
+    
+    /* Wardrobe Tab */
+    .wardrobe-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    
+    .clothing-section {
+        background: white;
+        border-radius: 10px;
+        padding: 20px;
+    }
+    
+    .section-header {
+        background: #2c3e50;
+        color: white;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        margin-bottom: 20px;
+    }
+    
+    .action-buttons {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+        transition: all 0.3s;
+    }
+    
+    .btn-primary {
+        background: #2c3e50;
+        color: white;
+    }
+    
+    .btn-primary:hover {
+        background: #34495e;
+    }
+    
+    .btn-danger {
+        background: #7f8c8d;
+        color: white;
+    }
+    
+    .btn-danger:hover {
+        background: #95a5a6;
+    }
+    
+    .clothing-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 15px;
+        max-height: 500px;
+        overflow-y: auto;
+        padding: 10px;
+        background: white;
+        border-radius: 8px;
+    }
+    
+    .clothing-item {
+        aspect-ratio: 1;
+        border: 2px solid #ecf0f1;
+        border-radius: 8px;
+        padding: 10px;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #f8f9fa;
+    }
+    
+    .clothing-item:hover {
+        border-color: #95a5a6;
+    }
+    
+    .clothing-item.selected {
+        border-color: #2c3e50;
+        background: #ecf0f1;
+    }
+    
+    .clothing-item img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+    
+    .generate-btn-container {
+        text-align: center;
+        margin-top: 30px;
+    }
+    
+    .btn-generate {
+        padding: 15px 40px;
+        font-size: 15px;
+        background: #2c3e50;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+    }
+    
+    .btn-generate:hover {
+        background: #34495e;
+    }
+    
+    /* Rate Tab */
+    .rate-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .progress-container {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+    
+    .progress-bar {
+        width: 100%;
+        height: 8px;
+        background: #ecf0f1;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        background: #2c3e50;
+        transition: width 0.3s;
+    }
+    
+    .progress-text {
+        text-align: center;
+        margin-top: 10px;
+        color: #7f8c8d;
+    }
+    
+    .outfit-display {
+        display: flex;
+        justify-content: center;
+        gap: 40px;
+        background: white;
+        padding: 40px;
+        border-radius: 10px;
+        min-height: 400px;
+        align-items: center;
+    }
+    
+    .outfit-item {
+        width: 320px;
+        height: 320px;
+        background: #f8f9fa;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .outfit-item img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+    }
+    
+    .plus-sign {
+        font-size: 60px;
+        color: #2c3e50;
+    }
+    
+    .rating-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        margin-top: 30px;
+    }
+    
+    .btn-rate {
+        padding: 15px 40px;
+        font-size: 16px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    .btn-like {
+        background: #2c3e50;
+        color: white;
+    }
+    
+    .btn-like:hover {
+        background: #34495e;
+    }
+    
+    .btn-skip {
+        background: #7f8c8d;
+        color: white;
+    }
+    
+    .btn-skip:hover {
+        background: #95a5a6;
+    }
+    
+    .btn-dislike {
+        background: #95a5a6;
+        color: white;
+    }
+    
+    .btn-dislike:hover {
+        background: #7f8c8d;
+    }
+    
+    /* Weekly Tab */
+    .weekly-container {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+    }
+    
+    .weekly-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .weekly-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-top: 20px;
+    }
+    
+    .day-card {
+        background: white;
+        border: 1px solid #ecf0f1;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+    
+    .day-header {
+        background: #2c3e50;
+        color: white;
+        padding: 12px;
+        text-align: center;
+        font-weight: bold;
+    }
+    
+    .day-outfit {
+        padding: 15px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .day-outfit img {
+        width: 160px;
+        height: 160px;
+        object-fit: contain;
+    }
+    
+    .outfit-separator {
+        width: 80%;
+        height: 2px;
+        background: #ecf0f1;
+    }
+    
+    /* Analytics Tab */
+    .analytics-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    
+    .analytics-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .refresh-btn {
+        width: 35px;
+        height: 35px;
+        border-radius: 6px;
+        background: #7f8c8d;
+        color: white;
+        border: none;
+        cursor: pointer;
+        font-size: 18px;
+    }
+    
+    .refresh-btn:hover {
+        background: #2c3e50;
+    }
+    
+    .stats-overview {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+    
+    .stat-card {
+        background: white;
+        padding: 30px;
+        border-radius: 8px;
+        text-align: center;
+    }
+    
+    .stat-value {
+        font-size: 32px;
+        font-weight: bold;
+        color: #2c3e50;
+        margin-bottom: 10px;
+    }
+    
+    .stat-label {
+        color: #7f8c8d;
+        font-size: 12px;
+    }
+    
+    .performance-container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+    }
+    
+    .performance-section {
+        background: white;
+        padding: 20px;
+        border-radius: 8px;
+        max-height: 500px;
+        overflow-y: auto;
+    }
+    
+    .performance-header {
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        color: #2c3e50;
+    }
+    
+    .performance-item {
+        display: flex;
+        align-items: center;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 6px;
+        margin-bottom: 10px;
+    }
+    
+    .performance-item img {
+        width: 50px;
+        height: 50px;
+        object-fit: contain;
+        margin-right: 15px;
+    }
+    
+    .performance-stats {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+    
+    .performance-bar {
+        width: 100px;
+        height: 8px;
+        background: #ecf0f1;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+    
+    .performance-fill {
+        height: 100%;
+        background: #2c3e50;
+    }
+    
+    .performance-label {
+        color: #7f8c8d;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    
+    /* File input styling */
+    .file-input-wrapper {
+        position: relative;
+        overflow: hidden;
+        display: inline-block;
+    }
+    
+    .file-input-wrapper input[type=file] {
+        position: absolute;
+        left: -9999px;
+    }
+    
+    .file-input-label {
+        display: inline-block;
+        padding: 10px 20px;
+        background: #2c3e50;
+        color: white;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 13px;
+    }
+    
+    .file-input-label:hover {
+        background: #34495e;
+    }
+    
+    /* Loading overlay */
+    .loading-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.8);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 1000;
+    }
+    
+    .loading-content {
+        background: white;
+        padding: 40px;
+        border-radius: 10px;
+        text-align: center;
+    }
+    
+    .loading-spinner {
+        width: 50px;
+        height: 50px;
+        border: 5px solid #f3f3f3;
+        border-top: 5px solid #2c3e50;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+    }
+    
+    @keyframes spin {
+        0% { transform: rotate(0deg); }
+        100% { transform: rotate(360deg); }
+    }
+    
+    /* Disabled state */
+    .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+</style>
+```
+
+</head>
+<body>
+    <!-- Navigation -->
+    <div class="nav-container">
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('wardrobe')">Wardrobe</button>
+            <button class="nav-tab" onclick="switchTab('rate')">Rate</button>
+            <button class="nav-tab" onclick="switchTab('weekly')">Weekly Plan</button>
+            <button class="nav-tab" onclick="switchTab('analytics')">Analytics</button>
+        </div>
+    </div>
+
+```
+<!-- Content -->
+<div class="content">
+    <!-- Wardrobe Tab -->
+    <div id="wardrobe-tab" class="tab-content active">
+        <div class="wardrobe-container">
+            <!-- Shirts Section -->
+            <div class="clothing-section">
+                <div class="section-header">
+                    <h2>Shirts</h2>
+                </div>
+                <div class="action-buttons">
+                    <div class="file-input-wrapper">
+                        <input type="file" id="shirt-input" multiple accept="image/*" onchange="handleFileUpload('shirts', this)">
+                        <label for="shirt-input" class="file-input-label">Add Shirts</label>
+                    </div>
+                    <button class="btn btn-danger" onclick="removeSelected('shirts')">Remove</button>
+                    <button class="btn btn-danger" onclick="clearAll('shirts')">Clear All</button>
+                </div>
+                <div id="shirts-grid" class="clothing-grid"></div>
+            </div>
+            
+            <!-- Pants Section -->
+            <div class="clothing-section">
+                <div class="section-header">
+                    <h2>Pants</h2>
+                </div>
+                <div class="action-buttons">
+                    <div class="file-input-wrapper">
+                        <input type="file" id="pants-input" multiple accept="image/*" onchange="handleFileUpload('pants', this)">
+                        <label for="pants-input" class="file-input-label">Add Pants</label>
+                    </div>
+                    <button class="btn btn-danger" onclick="removeSelected('pants')">Remove</button>
+                    <button class="btn btn-danger" onclick="clearAll('pants')">Clear All</button>
+                </div>
+                <div id="pants-grid" class="clothing-grid"></div>
+            </div>
+        </div>
+        
+        <div class="generate-btn-container">
+            <button class="btn-generate" onclick="generateCombinations()">Generate All Combinations</button>
+        </div>
+    </div>
+
+    <!-- Rate Tab -->
+    <div id="rate-tab" class="tab-content">
+        <div class="rate-container">
+            <div class="progress-container">
+                <div class="progress-bar">
+                    <div id="progress-fill" class="progress-fill" style="width: 0%"></div>
+                </div>
+                <div id="progress-text" class="progress-text">No combinations to rate</div>
+            </div>
+            
+            <div class="outfit-display">
+                <div class="outfit-item" id="shirt-display"></div>
+                <div class="plus-sign">+</div>
+                <div class="outfit-item" id="pants-display"></div>
+            </div>
+            
+            <div class="rating-buttons">
+                <button class="btn-rate btn-like" onclick="rateCombination(true)" disabled>Like (L)</button>
+                <button class="btn-rate btn-skip" onclick="skipCombination()" disabled>Skip (S)</button>
+                <button class="btn-rate btn-dislike" onclick="rateCombination(false)" disabled>Dislike (D)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weekly Tab -->
+    <div id="weekly-tab" class="tab-content">
+        <div class="weekly-container">
+            <div class="weekly-header">
+                <button class="btn-generate" onclick="generateWeeklyPlan()">Create Weekly Plan</button>
+            </div>
+            <div id="weekly-grid" class="weekly-grid"></div>
+        </div>
+    </div>
+
+    <!-- Analytics Tab -->
+    <div id="analytics-tab" class="tab-content">
+        <div class="analytics-container">
+            <div class="analytics-header">
+                <button class="refresh-btn" onclick="refreshAnalytics()">🔄</button>
+            </div>
+            
+            <div class="stats-overview">
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-shirts">0</div>
+                    <div class="stat-label">Shirts</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-pants">0</div>
+                    <div class="stat-label">Pants</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-combinations">0</div>
+                    <div class="stat-label">Total Combinations</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-liked">0</div>
+                    <div class="stat-label">Liked</div>
+                </div>
+            </div>
+            
+            <div class="performance-container">
+                <div class="performance-section">
+                    <div class="performance-header">Shirts Performance</div>
+                    <div id="shirts-performance"></div>
+                </div>
+                <div class="performance-section">
+                    <div class="performance-header">Pants Performance</div>
+                    <div id="pants-performance"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loading-overlay" class="loading-overlay">
+    <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <p id="loading-text">Loading...</p>
+    </div>
+</div>
+
+<script>
+    // Application State
+    let appState = {
+        shirts: [],
+        pants: [],
+        combinations: [],
+        preferences: {},
+        currentComboIndex: 0,
+        selectedShirt: null,
+        selectedPants: null,
+        weeklyOutfits: [],
+        isRating: false
+    };
+
+    // Utility functions
+    function showLoading(text = 'Loading...') {
+        document.getElementById('loading-text').textContent = text;
+        document.getElementById('loading-overlay').style.display = 'flex';
+    }
+
+    function hideLoading() {
+        document.getElementById('loading-overlay').style.display = 'none';
+    }
+
+    // Load saved data from Flask API
+    async function loadData() {
+        try {
+            showLoading('Loading your wardrobe...');
+            const response = await fetch('/api/data');
+            if (response.ok) {
+                const data = await response.json();
+                appState.shirts = data.shirts || [];
+                appState.pants = data.pants || [];
+                appState.combinations = data.combinations || [];
+                appState.preferences = data.preferences || {};
+                appState.weeklyOutfits = data.weekly_outfits || [];
+                updateDisplay();
+                
+                // If we're on the weekly tab and have a saved plan, display it
+                const weeklyTab = document.getElementById('weekly-tab');
+                if (weeklyTab.classList.contains('active')) {
+                    displayWeeklyPlan();
+                }
+            }
+        } catch (error) {
+            console.error('Error loading data:', error);
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Switch tabs
+    function switchTab(tabName) {
+        // Update nav
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.classList.remove('active');
+        });
+        event.target.classList.add('active');
+        
+        // Update content
+        document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+        });
+        document.getElementById(`${tabName}-tab`).classList.add('active');
+        
+        // Refresh displays
+        if (tabName === 'rate' && appState.combinations.length > 0) {
+            showCurrentCombination();
+        } else if (tabName === 'analytics') {
+            refreshAnalytics();
+        } else if (tabName === 'weekly') {
+            displayWeeklyPlan(); // Load existing weekly plan when switching to tab
+        }
+    }
+
+    // Image compression function with transparency support
+    function compressImage(file, maxWidth = 800, maxHeight = 800, quality = 0.8) {
+        return new Promise((resolve) => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            
+            img.onload = function() {
+                // Calculate new dimensions
+                let { width, height } = img;
+                
+                if (width > maxWidth || height > maxHeight) {
+                    const ratio = Math.min(maxWidth / width, maxHeight / height);
+                    width *= ratio;
+                    height *= ratio;
+                }
+                
+                // Set canvas size
+                canvas.width = width;
+                canvas.height = height;
+                
+                // Check if image has transparency or is PNG
+                const isPNG = file.type === 'image/png' || file.name.toLowerCase().endsWith('.png');
+                
+                if (isPNG) {
+                    // For PNG images, preserve transparency by using PNG format
+                    ctx.drawImage(img, 0, 0, width, height);
+                    canvas.toBlob(resolve, 'image/png', quality);
+                } else {
+                    // For JPEG and other formats, fill with white background
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, width, height);
+                    ctx.drawImage(img, 0, 0, width, height);
+                    canvas.toBlob(resolve, 'image/jpeg', quality);
+                }
+            };
+            
+            img.onerror = function() {
+                // If image fails to load, resolve with original file
+                resolve(file);
+            };
+            
+            img.src = URL.createObjectURL(file);
+        });
+    }
+
+    // Handle file upload using Flask API with compression
+    async function handleFileUpload(type, input) {
+        const files = input.files;
+        if (files.length === 0) return;
+        
+        try {
+            showLoading(`Processing ${files.length} image(s)...`);
+            
+            const formData = new FormData();
+            
+            // Compress each image before upload
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                
+                // Check file type
+                if (!file.type.startsWith('image/')) {
+                    console.warn(`Skipping non-image file: ${file.name}`);
+                    continue;
+                }
+                
+                // Check file size - compress if over 5MB
+                let processedFile = file;
+                if (file.size > 5 * 1024 * 1024) {
+                    showLoading(`Compressing large image: ${file.name}...`);
+                    const compressedBlob = await compressImage(file);
+                    
+                    // Determine output format based on input
+                    const isPNG = file.type === 'image/png' || file.name.toLowerCase().endsWith('.png');
+                    const outputType = isPNG ? 'image/png' : 'image/jpeg';
+                    
+                    // Create a new File object with appropriate format
+                    processedFile = new File([compressedBlob], file.name, {
+                        type: outputType,
+                        lastModified: Date.now()
+                    });
+                }
+                
+                formData.append('files', processedFile);
+            }
+            
+            showLoading(`Uploading ${type}...`);
+            
+            const response = await fetch(`/api/upload/${type}`, {
+                method: 'POST',
+                body: formData
+            });
+            
+            if (response.ok) {
+                const result = await response.json();
+                // Reload data to get updated lists
+                await loadData();
+            } else {
+                const error = await response.json();
+                alert(`Upload failed: ${error.error}`);
+            }
+        } catch (error) {
+            console.error('Upload error:', error);
+            alert('Upload failed. Please try again.');
+        } finally {
+            hideLoading();
+            // Clear the input
+            input.value = '';
+        }
+    }
+
+    // Update display
+    function updateDisplay() {
+        // Update shirts grid
+        const shirtsGrid = document.getElementById('shirts-grid');
+        shirtsGrid.innerHTML = '';
+        appState.shirts.forEach((shirt, index) => {
+            const item = document.createElement('div');
+            item.className = 'clothing-item';
+            if (appState.selectedShirt === index) {
+                item.classList.add('selected');
+            }
+            item.onclick = () => selectItem('shirt', index);
+            item.innerHTML = `<img src="${shirt.url}" alt="Shirt ${index}">`;
+            shirtsGrid.appendChild(item);
+        });
+        
+        // Update pants grid
+        const pantsGrid = document.getElementById('pants-grid');
+        pantsGrid.innerHTML = '';
+        appState.pants.forEach((pants, index) => {
+            const item = document.createElement('div');
+            item.className = 'clothing-item';
+            if (appState.selectedPants === index) {
+                item.classList.add('selected');
+            }
+            item.onclick = () => selectItem('pants', index);
+            item.innerHTML = `<img src="${pants.url}" alt="Pants ${index}">`;
+            pantsGrid.appendChild(item);
+        });
+        
+        // Update basic stats
+        document.getElementById('stat-shirts').textContent = appState.shirts.length;
+        document.getElementById('stat-pants').textContent = appState.pants.length;
+        document.getElementById('stat-combinations').textContent = 
+            appState.shirts.length * appState.pants.length;
+    }
+
+    // Select item
+    function selectItem(type, index) {
+        if (type === 'shirt') {
+            appState.selectedShirt = appState.selectedShirt === index ? null : index;
+        } else {
+            appState.selectedPants = appState.selectedPants === index ? null : index;
+        }
+        updateDisplay();
+    }
+
+    // Remove selected using Flask API
+    async function removeSelected(type) {
+        const selectedIndex = type === 'shirts' ? appState.selectedShirt : appState.selectedPants;
+        const items = type === 'shirts' ? appState.shirts : appState.pants;
+        
+        if (selectedIndex === null || selectedIndex >= items.length) {
+            alert(`Please select a ${type.slice(0, -1)} to remove.`);
+            return;
+        }
+        
+        const item = items[selectedIndex];
+        
+        try {
+            showLoading(`Removing ${type.slice(0, -1)}...`);
+            
+            const response = await fetch(`/api/remove/${type}/${item.id}`, {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                if (type === 'shirts') {
+                    appState.selectedShirt = null;
+                } else {
+                    appState.selectedPants = null;
+                }
+                await loadData();
+            } else {
+                alert('Failed to remove item.');
+            }
+        } catch (error) {
+            console.error('Error removing item:', error);
+            alert('Failed to remove item.');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Clear all using Flask API
+    async function clearAll(type) {
+        if (!confirm(`Clear all ${type}?`)) return;
+        
+        try {
+            showLoading(`Clearing all ${type}...`);
+            
+            const response = await fetch(`/api/clear/${type}`, {
+                method: 'DELETE'
+            });
+            
+            if (response.ok) {
+                if (type === 'shirts') {
+                    appState.selectedShirt = null;
+                } else {
+                    appState.selectedPants = null;
+                }
+                await loadData();
+            } else {
+                alert(`Failed to clear ${type}.`);
+            }
+        } catch (error) {
+            console.error(`Error clearing ${type}:`, error);
+            alert(`Failed to clear ${type}.`);
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Generate combinations using Flask API
+    async function generateCombinations() {
+        if (appState.shirts.length === 0 || appState.pants.length === 0) {
+            alert('Please add at least one shirt and one pair of pants!');
+            return;
+        }
+        
+        try {
+            showLoading('Generating combinations...');
+            
+            const response = await fetch('/api/generate_combinations', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                appState.combinations = data.combinations;
+                appState.currentComboIndex = 0;
+                
+                // Switch to rate tab
+                document.querySelector('.nav-tab:nth-child(2)').click();
+            } else {
+                const error = await response.json();
+                alert(error.error || 'Failed to generate combinations');
+            }
+        } catch (error) {
+            console.error('Error generating combinations:', error);
+            alert('Failed to generate combinations. Please try again.');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Show current combination
+    function showCurrentCombination() {
+        const ratingButtons = document.querySelectorAll('.btn-rate');
+        
+        if (appState.combinations.length === 0) {
+            document.getElementById('progress-text').textContent = 'No combinations to rate';
+            ratingButtons.forEach(btn => btn.disabled = true);
+            return;
+        }
+        
+        // Enable rating buttons
+        ratingButtons.forEach(btn => btn.disabled = false);
+        
+        if (appState.currentComboIndex >= appState.combinations.length) {
+            document.getElementById('progress-text').textContent = '🎉 All combinations rated!';
+            document.getElementById('progress-fill').style.width = '100%';
+            ratingButtons.forEach(btn => btn.disabled = true);
+            return;
+        }
+        
+        const combo = appState.combinations[appState.currentComboIndex];
+        const progress = (appState.currentComboIndex / appState.combinations.length) * 100;
+        
+        // Update progress
+        document.getElementById('progress-fill').style.width = `${progress}%`;
+        const status = appState.preferences[combo.id];
+        const statusText = status === true ? ' ✓' : status === false ? ' ✗' : '';
+        document.getElementById('progress-text').textContent = 
+            `Outfit ${appState.currentComboIndex + 1} of ${appState.combinations.length}${statusText}`;
+        
+        // Update images
+        document.getElementById('shirt-display').innerHTML = 
+            `<img src="${combo.shirt.url}" alt="Shirt">`;
+        document.getElementById('pants-display').innerHTML = 
+            `<img src="${combo.pants.url}" alt="Pants">`;
+    }
+
+    // Rate combination using Flask API
+    async function rateCombination(liked) {
+        if (appState.combinations.length === 0 || appState.isRating) return;
+        
+        const combo = appState.combinations[appState.currentComboIndex];
+        appState.isRating = true;
+        
+        try {
+            const response = await fetch('/api/rate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    combination_id: combo.id,
+                    liked: liked
+                })
+            });
+            
+            if (response.ok) {
+                appState.preferences[combo.id] = liked;
+                appState.currentComboIndex++;
+                showCurrentCombination();
+            } else {
+                console.error('Failed to save rating');
+            }
+        } catch (error) {
+            console.error('Error saving rating:', error);
+        } finally {
+            appState.isRating = false;
+        }
+    }
+
+    // Skip combination
+    function skipCombination() {
+        if (appState.combinations.length === 0) return;
+        appState.currentComboIndex++;
+        showCurrentCombination();
+    }
+
+    // Display existing weekly plan from appState
+    function displayWeeklyPlan() {
+        const weeklyGrid = document.getElementById('weekly-grid');
+        
+        if (!appState.weeklyOutfits || appState.weeklyOutfits.length === 0) {
+            weeklyGrid.innerHTML = '<div style="grid-column: 1 / -1; text-align: center; color: #7f8c8d; padding: 40px;">No weekly plan created yet. Click "Create Weekly Plan" to generate one!</div>';
+            return;
+        }
+        
+        // Display existing weekly plan
+        weeklyGrid.innerHTML = '';
+        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        
+        appState.weeklyOutfits.forEach((outfit, index) => {
+            const dayCard = document.createElement('div');
+            dayCard.className = 'day-card';
+            dayCard.innerHTML = `
+                <div class="day-header">${days[index]}</div>
+                <div class="day-outfit">
+                    <img src="${outfit.shirt.url}" alt="Shirt">
+                    <div class="outfit-separator"></div>
+                    <img src="${outfit.pants.url}" alt="Pants">
+                </div>
+            `;
+            weeklyGrid.appendChild(dayCard);
+        });
+    }
+
+    // Generate weekly plan using Flask API
+    async function generateWeeklyPlan() {
+        try {
+            showLoading('Generating weekly plan...');
+            
+            const response = await fetch('/api/generate_weekly', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                appState.weeklyOutfits = data.outfits;
+                
+                // Display the new weekly plan
+                displayWeeklyPlan();
+            } else {
+                const error = await response.json();
+                alert(error.error || 'Failed to generate weekly plan');
+            }
+        } catch (error) {
+            console.error('Error generating weekly plan:', error);
+            alert('Failed to generate weekly plan. Please try again.');
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Refresh analytics using Flask API
+    async function refreshAnalytics() {
+        try {
+            showLoading('Loading analytics...');
+            
+            const response = await fetch('/api/analytics');
+            if (response.ok) {
+                const data = await response.json();
+                
+                // Update stats
+                document.getElementById('stat-shirts').textContent = data.stats.shirts;
+                document.getElementById('stat-pants').textContent = data.stats.pants;
+                document.getElementById('stat-combinations').textContent = data.stats.combinations;
+                document.getElementById('stat-liked').textContent = data.stats.liked;
+                
+                // Update shirt performance
+                const shirtsPerf = document.getElementById('shirts-performance');
+                shirtsPerf.innerHTML = '';
+                
+                data.shirt_performance.forEach(item => {
+                    const performance = item.performance;
+                    const perfItem = document.createElement('div');
+                    perfItem.className = 'performance-item';
+                    perfItem.innerHTML = `
+                        <img src="${item.item.url}" alt="Shirt">
+                        <div class="performance-stats">
+                            <span>Liked: ${item.liked}/${item.total}</span>
+                            <div class="performance-bar">
+                                <div class="performance-fill" style="width: ${performance}%"></div>
+                            </div>
+                            <span class="performance-label">
+                                ${item.liked === 0 ? 'Needs attention' : 
+                                  item.liked <= 2 ? 'Could improve' : 'Performing well'}
+                            </span>
+                        </div>
+                    `;
+                    shirtsPerf.appendChild(perfItem);
+                });
+                
+                // Update pants performance
+                const pantsPerf = document.getElementById('pants-performance');
+                pantsPerf.innerHTML = '';
+                
+                data.pants_performance.forEach(item => {
+                    const performance = item.performance;
+                    const perfItem = document.createElement('div');
+                    perfItem.className = 'performance-item';
+                    perfItem.innerHTML = `
+                        <img src="${item.item.url}" alt="Pants">
+                        <div class="performance-stats">
+                            <span>Liked: ${item.liked}/${item.total}</span>
+                            <div class="performance-bar">
+                                <div class="performance-fill" style="width: ${performance}%"></div>
+                            </div>
+                            <span class="performance-label">
+                                ${item.liked === 0 ? 'Needs attention' : 
+                                  item.liked <= 2 ? 'Could improve' : 'Performing well'}
+                            </span>
+                        </div>
+                    `;
+                    pantsPerf.appendChild(perfItem);
+                });
+            } else {
+                console.error('Failed to load analytics');
+            }
+        } catch (error) {
+            console.error('Error loading analytics:', error);
+        } finally {
+            hideLoading();
+        }
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+        const rateTab = document.getElementById('rate-tab');
+        if (!rateTab.classList.contains('active') || appState.isRating) return;
+        
+        switch(e.key.toLowerCase()) {
+            case 'l':
+                e.preventDefault();
+                rateCombination(true);
+                break;
+            case 'd':
+                e.preventDefault();
+                rateCombination(false);
+                break;
+            case 's':
+                e.preventDefault();
+                skipCombination();
+                break;
+            case 'arrowright':
+                e.preventDefault();
+                skipCombination();
+                break;
+            case 'arrowleft':
+                e.preventDefault();
+                if (appState.currentComboIndex > 0) {
+                    appState.currentComboIndex--;
+                    showCurrentCombination();
+                }
+                break;
+        }
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+        loadData();
+    });
+</script>
+```
+
+</body>
+</html>
